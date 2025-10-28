@@ -3,24 +3,24 @@ import numpy as np
 from flask import Flask, request, jsonify
 import os
 
-# --- Configuration (UPDATED FILE NAMES AND FEATURE COUNT) ---
-# Ensure these names match the files you pushed (L2 versions)
-MODEL_PATH = 'retrained_logreg_model_l2.pkl'
-SCALER_PATH = 'feature_scaler_new_l2.pkl'
-EXPECTED_FEATURES = 13 # Assuming your heart disease model still requires 13 features
+# --- Configuration (UPDATED FILE NAMES FOR SMOTE MODEL) ---
+# New files resulting from SMOTE training:
+MODEL_PATH = 'retrained_logreg_model_smote.pkl'
+SCALER_PATH = 'feature_scaler_smote.pkl'
+EXPECTED_FEATURES = 13 # Assuming your model still requires 13 features
 
 # --- Initialize Flask App ---
 app = Flask(__name__)
 
 # --- Load Model and Scaler Globally ---
 try:
-    # Load the retrained Logistic Regression model using joblib
+    # Load the retrained Logistic Regression model (SMOTE version)
     model = joblib.load(MODEL_PATH)
     
-    # Load the StandardScaler object using joblib
+    # Load the StandardScaler object (SMOTE version)
     scaler = joblib.load(SCALER_PATH)
     
-    print("✅ Logistic Regression Model (L2) and Scaler loaded successfully. Ready for predictions.")
+    print(f"✅ SMOTE-trained Logistic Regression Model and Scaler loaded successfully from {MODEL_PATH} and {SCALER_PATH}. Ready for predictions.")
 
 except FileNotFoundError:
     print(f"🚨 CRITICAL ERROR: Model or scaler files not found. Ensure {MODEL_PATH} and {SCALER_PATH} are in the repository root.")
@@ -36,7 +36,7 @@ except Exception as e:
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Endpoint for making predictions.
+    Endpoint for making predictions using the SMOTE-trained model.
     Receives JSON: {"features": [f1, f2, ..., f13]}
     """
     # 0. Check if model is loaded
@@ -68,7 +68,7 @@ def predict():
         result = int(prediction)
 
         # 5. Format response message
-        message = "Prediction: High Risk (1)" if result == 1 else "Prediction: Low Risk (0)"
+        message = "Prediction: High Risk (1) - SMOTE Model" if result == 1 else "Prediction: Low Risk (0) - SMOTE Model"
         confidence = prediction_proba[result] if result < len(prediction_proba) else None
         
         # 6. Return the result
@@ -90,6 +90,6 @@ def predict():
         }), 500
 
 if __name__ == '__main__':
-    # This block is usually for local testing. Use 'gunicorn' or 'flask run' for production.
+    # For local testing
     # app.run(debug=True)
     pass
